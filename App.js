@@ -11,21 +11,25 @@ import {
   SectionList,
 } from "react-native";
 
-const getWordMeaning = async (word) => {
-  try {
-    const datafetch = await fetch(
-      `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
-    );
-    const [resp] = await datafetch.json();
-    return await resp;
-  } catch (error) {
-    alert(error);
-  }
-};
 // getWordMeaning("hot");
 const App = () => {
+  const getWordMeaning = async (word) => {
+    setIsLoading(true);
+    setHelperText(`Searching the web for ${word}`);
+    setWord("");
+    setPhonetics("");
+    try {
+      const datafetch = await fetch(
+        `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+      );
+      const [resp] = await datafetch.json();
+      return await resp;
+    } catch (error) {
+      alert(error);
+    }
+  };
   const [word, setWord] = useState("");
-  const [isLoading, setIsLoading] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [phonetics, setPhonetics] = useState("");
   const [helperText, setHelperText] = useState(
     "Enter a word above and press Enter"
@@ -57,6 +61,8 @@ const App = () => {
           onSubmitEditing={(e) => {
             (async () => await getWordMeaning(e.nativeEvent["text"]))().then(
               (res) => {
+                setHelperText("Enter a word above and press Enter");
+                setIsLoading(false);
                 setWord(res.word);
                 setPhonetics(res.phonetic);
                 setData([
@@ -76,10 +82,10 @@ const App = () => {
                           return `Meaning${index + 1} :    Part of Speech:    ${
                             res.meanings[count[index]].partOfSpeech
                           }
-                            \n${d.definition}\n ${
+                          \n${d.definition}${
                             d.example === undefined
                               ? ""
-                              : `Example: ${d.example}`
+                              : `\nExample: ${d.example}`
                           }`;
                         }),
                     ],
@@ -97,24 +103,30 @@ const App = () => {
             );
           }}
         ></TextInput>
-        <Text style={{ paddingHorizontal: 10 }}>{helperText}</Text>
+        <Text style={{ paddingHorizontal: 10, fontSize: 20 }}>
+          {helperText}
+        </Text>
         <View style={styles.meanings}>
           <View style={styles.wordIntro}>
             <Text style={styles.word}>{word}</Text>
             <Text style={styles.phonetics}>{phonetics}</Text>
           </View>
-          <SectionList
-            sections={DATA}
-            keyExtractor={(item, index) => item + index}
-            renderItem={({ item }) => (
-              <View style={styles.item}>
-                <Text style={styles.title}>{item}</Text>
-              </View>
-            )}
-            renderSectionHeader={({ section: { title } }) => (
-              <Text style={styles.sectionHeaderText}>{title}</Text>
-            )}
-          />
+          {isLoading ? (
+            <Text>haha</Text>
+          ) : (
+            <SectionList
+              sections={DATA}
+              keyExtractor={(item, index) => item + index}
+              renderItem={({ item }) => (
+                <View style={styles.item}>
+                  <Text style={styles.title}>{item}</Text>
+                </View>
+              )}
+              renderSectionHeader={({ section: { title } }) => (
+                <Text style={styles.sectionHeaderText}>{title}</Text>
+              )}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>
