@@ -18,7 +18,6 @@ const getWordMeaning = async (word) => {
     );
     const [resp] = await datafetch.json();
     return await resp;
-    // console.log(resp.meanings);
   } catch (error) {
     alert(error);
   }
@@ -26,26 +25,13 @@ const getWordMeaning = async (word) => {
 // getWordMeaning("hot");
 const App = () => {
   const [word, setWord] = useState("");
+  const [isLoading, setIsLoading] = useState("");
   const [phonetics, setPhonetics] = useState("");
+  const [helperText, setHelperText] = useState(
+    "Enter a word above and press Enter"
+  );
 
-  const [DATA, setData] = useState([
-    {
-      title: "Main dishes",
-      data: ["Pizza", "Burger", "Risotto"],
-    },
-    {
-      title: "Sides",
-      data: ["French Fries", "Onion Rings", "Fried Shrimps"],
-    },
-    {
-      title: "Drinks",
-      data: ["Water", "Coke", "Beer"],
-    },
-    {
-      title: "Desserts",
-      data: ["Cheese Cake", "Ice Cream"],
-    },
-  ]);
+  const [DATA, setData] = useState([]);
   let count = [];
   return (
     <SafeAreaView
@@ -69,7 +55,6 @@ const App = () => {
           placeholder="Search"
           style={styles.searchBar}
           onSubmitEditing={(e) => {
-            e.preventDefault();
             (async () => await getWordMeaning(e.nativeEvent["text"]))().then(
               (res) => {
                 setWord(res.word);
@@ -79,31 +64,25 @@ const App = () => {
                     title: "Meanings",
                     data: [
                       ...res.meanings
-                        .flatMap(
-                          (m, j) => (
-                            count.push(
-                              ...new Array(m.definitions.length - 1).fill(j)
-                            ),
-                            m.definitions
-                          )
-                        )
-                        .flatMap(
-                          (d, index) => (
-                            console.log(count),
-                            `${index + 1}:\t${
-                              res.meanings[count[index]].partOfSpeech
-                            }\n${d.definition}\n ${
-                              d.example === undefined
-                                ? ""
-                                : `Example: ${d.example}`
-                            }`
-                          )
-                        ),
+                        .flatMap((m, j) => {
+                          count.push(
+                            ...new Array(
+                              res.meanings[j].definitions.length
+                            ).fill(j)
+                          );
+                          return m.definitions;
+                        })
+                        .flatMap((d, index) => {
+                          return `Meaning${index + 1} :    Part of Speech:    ${
+                            res.meanings[count[index]].partOfSpeech
+                          }
+                            \n${d.definition}\n ${
+                            d.example === undefined
+                              ? ""
+                              : `Example: ${d.example}`
+                          }`;
+                        }),
                     ],
-                  },
-                  {
-                    title: "Part of Speech",
-                    data: [res.meanings[0].partOfSpeech],
                   },
                   {
                     title: "Synonyms",
@@ -114,16 +93,11 @@ const App = () => {
                     data: [res.meanings[0].definitions[0].antonyms],
                   },
                 ]);
-                // const [meanings] = res.meanings;
-                // console.log(meanings.definitions[0].synonyms);
-                console.log(res.meanings[1].partOfSpeech);
               }
             );
           }}
         ></TextInput>
-        <Text style={{ paddingHorizontal: 10 }}>
-          Enter a word above and press Enter
-        </Text>
+        <Text style={{ paddingHorizontal: 10 }}>{helperText}</Text>
         <View style={styles.meanings}>
           <View style={styles.wordIntro}>
             <Text style={styles.word}>{word}</Text>
@@ -218,6 +192,7 @@ const styles = StyleSheet.create({
     padding: 5,
     marginVertical: 5,
     backgroundColor: "white",
+    textTransform: "capitalize",
   },
 });
 
