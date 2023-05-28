@@ -38,14 +38,7 @@ const App = () => {
   const [DATA, setData] = useState([]);
   let count = [];
   return (
-    <SafeAreaView
-      style={[
-        {
-          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        },
-        styles.wrapper,
-      ]}
-    >
+    <SafeAreaView style={styles.wrapper}>
       <View style={styles.header}>
         <Text style={styles.headerText}>English Dictionary</Text>
         {/*  Union Jack Image from publicdomainpictures.net*/}
