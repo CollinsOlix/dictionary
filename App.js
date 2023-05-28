@@ -92,13 +92,26 @@ const App = () => {
                   },
                   {
                     title: "Synonyms",
-                    data: [...res.meanings[0].synonyms],
+                    data: [
+                      ...res.meanings
+                        .flatMap((m) => m.definitions)
+                        .flatMap((d) => d.synonyms),
+                    ],
                   },
                   {
                     title: "Antonyms",
-                    data: [res.meanings[0].definitions[0].antonyms],
+                    data: [
+                      ...res.meanings
+                        .flatMap((m) => m.definitions)
+                        .flatMap((d) => d.antonyms),
+                    ],
                   },
                 ]);
+                console.log(
+                  ...res.meanings
+                    .flatMap((m) => m.definitions)
+                    .flatMap((d) => d.synonyms)
+                );
               }
             );
           }}
@@ -112,7 +125,9 @@ const App = () => {
             <Text style={styles.phonetics}>{phonetics}</Text>
           </View>
           {isLoading ? (
-            <Text>haha</Text>
+            <Text style={{ alignSelf: "center", fontSize: 40 }}>
+              Waiting...
+            </Text>
           ) : (
             <SectionList
               sections={DATA}
